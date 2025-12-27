@@ -12,7 +12,7 @@ A Bash script to test the latency of various DNS providers against Russian and G
   - 🟡 **Yellow**: 50ms - 150ms (Medium)
   - 🔴 **Red**: > 150ms (Slow)
 - **IPv6 Support**: Automatically detects and tests IPv6 if available.
-- **Best 2 DNS**: Automatically suggests the top 2 fastest DNS servers for your connection at the end of the test.
+- **Top Recommendation**: Automatically suggests the top 2 fastest DNS servers for your connection at the end of the test.
 - **Stability Test**: 10 sequential runs to calculate average latency and filter out unstable servers (drops).
 - **Extensive Provider List**: Includes Global, Russian, Finnish, German, and French DNS providers.
 
@@ -81,15 +81,7 @@ The script queries a comprehensive list of public DNS resolvers (Google, Cloudfl
 ### Optimization Details
 - **Timeout**: 1 second per try.
 - **Retries**: 2 tries.
-- **Dead Server Check**: If a server fails a quick connectivity check, it is skipped immediately to save time.
-
-## Credits
-
-This project is a fork of [cleanbrowsing/dnsperftest](https://github.com/cleanbrowsing/dnsperftest), enhanced with:
-- Russian domain support
-- Stability testing (multiple runs)
-- Improved unstable server filtering
-- More DNS providers (Yandex, Comss, etc.)
+- If a server fails a quick connectivity check, it is skipped immediately to save time.
 
 ## License
 MIT
