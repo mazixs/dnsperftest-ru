@@ -70,18 +70,6 @@ sudo pacman -S bind-tools
 sudo dnf install bind-utils
 ```
 
-### ▶️ Running the Script
-
-1. **Make executable:**
-   ```bash
-   chmod +x dnstest.sh
-   ```
-
-2. **Run:**
-   ```bash
-   ./dnstest.sh
-   ```
-
 ---
 
 ## 🎮 Interactive Menu
