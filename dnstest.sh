@@ -14,7 +14,7 @@ trap "rm -f $RESULTS_FILE" EXIT
 
 NAMESERVERS=`cat /etc/resolv.conf | grep ^nameserver | cut -d " " -f 2 | sed 's/\(.*\)/&#&/'`
 
-PROVIDERSV4="
+PROVIDERS_GLOBAL_V4="
 1.1.1.1#Cloudflare 
 1.0.0.1#Cloudflare-Sec
 185.228.168.9#CleanBrowsing
@@ -59,7 +59,18 @@ PROVIDERSV4="
 80.80.81.81#Freenom-Sec
 199.85.126.10#Norton
 199.85.127.10#Norton-Sec
-45.90.28.202#NextDNS
+45.90.28.82#NextDNS
+45.90.30.82#NextDNS-Sec
+45.90.28.202#NextDNS-Sec2
+95.217.11.63#NWPS.fi
+135.181.103.31#NWPS.fi-Sec
+81.3.27.54#LightningWireLabs
+80.67.169.12#FDN
+80.67.169.40#FDN-Sec
+45.80.1.6#LinuxPatch
+"
+
+PROVIDERS_RU_V4="
 83.220.169.155#Comss.one
 212.109.195.93#Comss.one-Sec
 77.88.8.8#Yandex
@@ -70,23 +81,20 @@ PROVIDERSV4="
 195.210.172.43#MTS
 195.210.172.46#MTS-Sec
 217.10.44.35#AKADO
-95.217.11.63#NWPS.fi
-135.181.103.31#NWPS.fi-Sec
-81.3.27.54#LightningWireLabs
-80.67.169.12#FDN
-80.67.169.40#FDN-Sec
-45.80.1.6#LinuxPatch
 "
 
-PROVIDERSV6="
+PROVIDERS_GLOBAL_V6="
 2606:4700:4700::1111#cloudflare-v6
 2001:4860:4860::8888#google-v6
 2620:fe::fe#quad9-v6
 2620:119:35::35#opendns-v6
 2a0d:2a00:1::1#cleanbrowsing-v6
-2a02:6b8::feed:0ff#yandex-v6
 2a00:5a60::ad1:0ff#adguard-v6
 2610:a1:1018::3#neustar-v6
+"
+
+PROVIDERS_RU_V6="
+2a02:6b8::feed:0ff#yandex-v6
 "
 
 # Lists of domains
@@ -99,62 +107,107 @@ if [ $? = 0 ]; then
     hasipv6="true"
 fi
 
-# Select Providers
-providerstotest=$PROVIDERSV4
+# Header function
+print_banner() {
+    clear
+    echo -e "${GREEN}"
+    echo "  ____  _   _ ____  ____  _____ ____  _____ _____ ____  _____ "
+    echo " |  _ \| \ | / ___||  _ \| ____|  _ \|  ___|_   _| ____|/ ___|"
+    echo " | | | |  \| \___ \| |_) |  _| | |_) | |_    | | |  _|  \___ \\"
+    echo " | |_| | |\  |___) |  __/| |___|  _ <|  _|   | | | |___  ___) |"
+    echo " |____/|_| \_|____/|_|   |_____|_| \_\_|     |_| |_____||____/ "
+    echo -e "${NC}"
+    echo "         DNS Performance & Stability Test (RU/Global)"
+    echo "================================================================"
+    echo ""
+}
+
+print_banner
+
+# Step 1: Select Region
+echo -e "${YELLOW}Step 1: Select Region${NC}"
+echo "1) Russian Domains (RU) - ya.ru, vk.com, etc."
+echo "2) Global Domains       - google.com, facebook.com, etc."
+echo "3) All (RU + Global)    - Comprehensive test"
+read -p "Enter choice [1-3]: " region_choice
+
+
+case $region_choice in
+    1) DOMAINS2TEST="$DOMAINS_RU" ;;
+    2) DOMAINS2TEST="$DOMAINS_GLOBAL" ;;
+    *) DOMAINS2TEST="$DOMAINS_RU $DOMAINS_GLOBAL" ;;
+esac
+
+echo ""
+
+# Step 2: Select DNS Providers
+echo -e "${YELLOW}Step 2: Select DNS Providers${NC}"
+echo "1) Russian DNS (RU)     - Yandex, Comss, MTS, etc."
+echo "2) Global DNS           - Cloudflare, Google, Quad9, etc."
+echo "3) All (RU + Global)    - Complete list"
+read -p "Enter choice [1-3]: " provider_choice
+
+echo ""
+
+# Determine IP mode (ipv4, ipv6, or all)
+ip_mode="ipv4"
 if [ "x$1" = "xipv6" ]; then
-    if [ "x$hasipv6" = "x" ]; then
-        echo "error: IPv6 support not found. Unable to do the ipv6 test."; exit 1;
-    fi
-    providerstotest=$PROVIDERSV6
-elif [ "x$1" = "xipv4" ]; then
-    providerstotest=$PROVIDERSV4
+    ip_mode="ipv6"
 elif [ "x$1" = "xall" ]; then
-    if [ "x$hasipv6" = "x" ]; then
-        providerstotest=$PROVIDERSV4
-    else
-        providerstotest="$PROVIDERSV4 $PROVIDERSV6"
-    fi
+    ip_mode="all"
 fi
 
-# Menu for Domain Selection
-echo "Select test mode:"
-echo "1) Quick Test - Russian Domains (RU)"
-echo "2) Quick Test - Global Domains"
-echo "3) Quick Test - All (RU + Global)"
-echo "4) Stability Test (10 runs)"
-read -p "Enter choice [1-4]: " test_choice
+if [ "$ip_mode" != "ipv4" ] && [ "x$hasipv6" = "x" ]; then
+    echo "error: IPv6 support not found. Unable to do the ipv6 test."
+    exit 1
+fi
+
+# Build provider list based on IP mode and Menu Choice
+providerstotest=""
+
+add_providers() {
+    local type=$1 # ru or global
+    
+    if [ "$ip_mode" = "ipv4" ] || [ "$ip_mode" = "all" ]; then
+        if [ "$type" = "ru" ]; then providerstotest="$providerstotest $PROVIDERS_RU_V4"; fi
+        if [ "$type" = "global" ]; then providerstotest="$providerstotest $PROVIDERS_GLOBAL_V4"; fi
+    fi
+    
+    if [ "$ip_mode" = "ipv6" ] || [ "$ip_mode" = "all" ]; then
+         if [ "$type" = "ru" ]; then providerstotest="$providerstotest $PROVIDERS_RU_V6"; fi
+         if [ "$type" = "global" ]; then providerstotest="$providerstotest $PROVIDERS_GLOBAL_V6"; fi
+    fi
+}
+
+case $provider_choice in
+    1) # RU
+        add_providers "ru"
+        ;;
+    2) # Global
+        add_providers "global"
+        ;;
+    *) # All
+        add_providers "ru"
+        add_providers "global"
+        ;;
+esac
+
+# Step 3: Select Test Mode
+echo -e "${YELLOW}Step 3: Select Test Mode${NC}"
+echo "1) Quick Test      (1 run)   - Fast check"
+echo "2) Stability Test  (10 runs) - Detects drops & averages latency"
+read -p "Enter choice [1-2]: " mode_choice
 
 is_stability=false
 max_runs=1
 
-case $test_choice in
-    1)
-        DOMAINS2TEST="$DOMAINS_RU"
-        ;;
+case $mode_choice in
     2)
-        DOMAINS2TEST="$DOMAINS_GLOBAL"
-        ;;
-    3)
-        DOMAINS2TEST="$DOMAINS_RU $DOMAINS_GLOBAL"
-        ;;
-    4)
         is_stability=true
         max_runs=10
-        echo ""
-        echo "Select domains for stability test:"
-        echo "1) Russian Domains (RU)"
-        echo "2) Global Domains"
-        echo "3) All (RU + Global)"
-        read -p "Enter choice [1-3]: " stable_choice
-        case $stable_choice in
-            1) DOMAINS2TEST="$DOMAINS_RU" ;;
-            2) DOMAINS2TEST="$DOMAINS_GLOBAL" ;;
-            *) DOMAINS2TEST="$DOMAINS_RU $DOMAINS_GLOBAL" ;;
-        esac
         ;;
     *)
-        echo "Invalid choice, defaulting to Quick Test (Global)"
-        DOMAINS2TEST="$DOMAINS_GLOBAL"
+        # Default is Quick Test
         ;;
 esac
 
@@ -171,6 +224,11 @@ totaldomains=0
 for d in $DOMAINS2TEST; do
     totaldomains=$((totaldomains + 1))
 done
+
+if [ "$totaldomains" -eq 0 ]; then
+    echo "Error: No domains selected for testing."
+    exit 1
+fi
 
 # Header function
 print_header() {

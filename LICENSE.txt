@@ -1,4 +1,5 @@
 Copyright (C) 2018 - 2022 CleanBrowsing Inc. All rights reserved.
+Copyright (C) 2025 Mazix (modifications and improvements)
 
  dnsperftest is a free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License (version 3) as

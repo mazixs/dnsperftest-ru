@@ -19,7 +19,11 @@ A Bash script to test the latency of various DNS providers against Russian and G
 ## Usage
 
 ### Prerequisites
-You need `bash` and `dnsutils` (contains `dig`) or `ldns` (contains `drill`). `awk` is used for calculations (usually pre-installed).
+You need `bash` and `dnsutils` (or equivalent package providing `dig`). 
+The script also supports `drill` (from `ldns`), which is automatically used if found.
+`awk` is used for calculations (usually pre-installed).
+
+### Installation of Dependencies
 
 ```bash
 # Debian/Ubuntu
@@ -27,6 +31,9 @@ sudo apt install dnsutils
 
 # Arch Linux
 sudo pacman -S bind
+
+# Fedora / CentOS / RHEL
+sudo dnf install bind-utils
 ```
 
 ### Running the Script
@@ -41,11 +48,21 @@ Run it:
 ./dnstest.sh
 ```
 
-You will be prompted to select a test mode:
-1. **Quick Test - Russian Domains (RU)**: ya.ru, mail.ru, vk.com, etc.
-2. **Quick Test - Global Domains**: google.com, facebook.com, etc.
-3. **Quick Test - All**: Both sets.
-4. **Stability Test (10 runs)**: Runs the test 10 times in a loop, aggregating results to find the most stable and fast servers.
+The script uses an interactive menu with three steps:
+
+1.  **Select Region (Domains)**:
+    *   **Russian Domains (RU)**: ya.ru, mail.ru, vk.com, etc.
+    *   **Global Domains**: google.com, facebook.com, etc.
+    *   **All**: Comprehensive test of both sets.
+
+2.  **Select DNS Providers**:
+    *   **Russian DNS (RU)**: Yandex, Comss, MTS, Rostelecom, etc.
+    *   **Global DNS**: Cloudflare, Google, Quad9, etc.
+    *   **All**: Complete list of providers.
+
+3.  **Select Test Mode**:
+    *   **Quick Test (1 run)**: Fast performance check.
+    *   **Stability Test (10 runs)**: Runs the test 10 times to detect packet drops and calculate stable average latency.
 
 ### Command Line Arguments
 
@@ -92,4 +109,4 @@ This project is a fork of [cleanbrowsing/dnsperftest](https://github.com/cleanbr
 - More DNS providers (Yandex, Comss, etc.)
 
 ## License
-MIT
+GPLv3
