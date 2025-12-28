@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+VERSION="2.0.0"
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -333,12 +335,12 @@ done
 
 echo ""
 echo "========================================"
-echo " Best 2 DNS"
+echo " Best 6 DNS"
 if [ "$is_stability" = "true" ]; then
     echo " (Based on 10 runs average, excluding unstable)"
 fi
 echo "========================================"
-# Sort by average time (numeric), take top 2
+# Sort by average time (numeric), take top 6
 # Exclude current system resolver (127.0.0.53) if desired, but user might want to know if local is best.
 # We will show whatever is best.
 
@@ -385,7 +387,7 @@ if [ -f "$RESULTS_FILE" ]; then
                 printf "%.2f %s %s\n", avg, name, ips[name]
             }
         }
-    }' "$RESULTS_FILE" | sort -n | head -n 2 | while read avg name ip; do
+    }' "$RESULTS_FILE" | sort -n | head -n 6 | while read avg name ip; do
         echo "  $name ($ip) - $avg ms"
     done
 else

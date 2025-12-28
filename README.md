@@ -1,112 +1,158 @@
-# DNS Performance Test (RU/Global)
+# 🚀 DNS Performance & Stability Test (RU/Global)
 
-A Bash script to test the latency of various DNS providers against Russian and Global domains.
+![License](https://img.shields.io/badge/license-GPLv3-blue.svg)
+![Bash](https://img.shields.io/badge/language-Bash-green.svg)
+![Platform](https://img.shields.io/badge/platform-Linux-lightgrey.svg)
 
-## Features
+A powerful and interactive Bash script to benchmark the latency and stability of various DNS providers against Russian and Global domains.
 
-- **Multi-Region Support**: Select between Russian domains, Global domains, or both.
-- **Smart Timeout Handling**: Optimized `dig` settings to prevent long hangs on packet loss.
-- **Dead Server Detection**: Quickly skips servers that are down or unreachable.
-- **Color-Coded Output**:
-  - 🟢 **Green**: < 50ms (Fast)
-  - 🟡 **Yellow**: 50ms - 150ms (Medium)
-  - 🔴 **Red**: > 150ms (Slow)
-- **IPv6 Support**: Automatically detects and tests IPv6 if available.
-- **Best 2 DNS**: Automatically suggests the top 2 fastest DNS servers for your connection at the end of the test.
-- **Stability Test**: 10 sequential runs to calculate average latency and filter out unstable servers (drops).
-- **Extensive Provider List**: Includes Global, Russian, Finnish, German, and French DNS providers.
+---
 
-## Usage
+## ✨ Features
+
+| Feature | Description |
+| :--- | :--- |
+| 🌍 **Multi-Region Support** | Choose between **Russian (RU)**, **Global**, or **All** domains/providers. |
+| 🛡️ **Extensive Providers** | Tests popular global DNS (Cloudflare, Google) and local RU providers (Yandex, Comss, MTS). |
+| ⚡ **Smart Handling** | Optimized `dig` timeouts (1s) and fast skip for dead servers. |
+| 📊 **Stability Mode** | **10-run stability test** to detect packet loss and average out latency spikes. |
+| 🏆 **Best 6 DNS** | Automatically calculates and suggests the **Top 6** fastest and most stable servers. |
+| 🌈 **Rich Output** | Color-coded results (Green/Yellow/Red) for instant readability. |
+| 📡 **IPv6 Ready** | Auto-detects IPv6 connectivity and includes IPv6 resolvers if available. |
+
+---
+
+## 🚀 Usage
 
 ### Prerequisites
-You need `bash` and `dnsutils` (or equivalent package providing `dig`). 
-The script also supports `drill` (from `ldns`), which is automatically used if found.
-`awk` is used for calculations (usually pre-installed).
+- **Bash** (shell)
+- **DNS Utils** (`dig` or `drill`)
+- **Awk** (standard on most Linux distros)
 
-### Installation of Dependencies
+### 📦 Quick Install (Single Script)
 
+You can download and run the script directly without cloning the repository.
+
+**Using wget:**
 ```bash
-# Debian/Ubuntu
-sudo apt install dnsutils
-
-# Arch Linux
-sudo pacman -S bind
-
-# Fedora / CentOS / RHEL
-sudo dnf install bind-utils
-```
-
-### Running the Script
-
-Make the script executable:
-```bash
+wget https://raw.githubusercontent.com/mazixs/dnsperftest-ru/v2.0.0/dnstest.sh
 chmod +x dnstest.sh
-```
-
-Run it:
-```bash
 ./dnstest.sh
 ```
 
-The script uses an interactive menu with three steps:
-
-1.  **Select Region (Domains)**:
-    *   **Russian Domains (RU)**: ya.ru, mail.ru, vk.com, etc.
-    *   **Global Domains**: google.com, facebook.com, etc.
-    *   **All**: Comprehensive test of both sets.
-
-2.  **Select DNS Providers**:
-    *   **Russian DNS (RU)**: Yandex, Comss, MTS, Rostelecom, etc.
-    *   **Global DNS**: Cloudflare, Google, Quad9, etc.
-    *   **All**: Complete list of providers.
-
-3.  **Select Test Mode**:
-    *   **Quick Test (1 run)**: Fast performance check.
-    *   **Stability Test (10 runs)**: Runs the test 10 times to detect packet drops and calculate stable average latency.
-
-### Command Line Arguments
-
-You can filter providers by IP version:
-
+**Using curl:**
 ```bash
-./dnstest.sh ipv4   # Test only IPv4 providers
-./dnstest.sh ipv6   # Test only IPv6 providers
-./dnstest.sh all    # Test both (default behavior depends on system)
+curl -O https://raw.githubusercontent.com/mazixs/dnsperftest-ru/v2.0.0/dnstest.sh
+chmod +x dnstest.sh
+./dnstest.sh
 ```
 
-## Example Output
+### 📦 Manual Installation (Git Clone)
+
+If you prefer to have the full source code:
+
+#### Debian / Ubuntu
+```bash
+sudo apt install dnsutils
+git clone https://github.com/mazixs/dnsperftest-ru.git
+cd dnsperftest-ru
+chmod +x dnstest.sh
+./dnstest.sh
+```
+
+#### Arch Linux
+```bash
+sudo pacman -S bind-tools
+```
+
+#### Fedora / CentOS / RHEL
+```bash
+sudo dnf install bind-utils
+```
+
+### ▶️ Running the Script
+
+1. **Make executable:**
+   ```bash
+   chmod +x dnstest.sh
+   ```
+
+2. **Run:**
+   ```bash
+   ./dnstest.sh
+   ```
+
+---
+
+## 🎮 Interactive Menu
+
+The script guides you through a simple 3-step configuration:
+
+### 1️⃣ Step 1: Select Region (Domains)
+Define **which websites** will be used for latency testing.
+*   **Russian Domains (RU)**: `ya.ru`, `vk.com`, `gosuslugi.ru`, etc.
+*   **Global Domains**: `google.com`, `amazon.com`, etc.
+*   **All**: A mix of both for a comprehensive picture.
+
+### 2️⃣ Step 2: Select DNS Providers
+Define **which DNS servers** you want to test against.
+*   **Russian DNS**: `Yandex`, `Comss.one`, `MTS`, `Rostelecom`, etc.
+*   **Global DNS**: `Cloudflare`, `Google`, `Quad9`, `OpenDNS`, etc.
+*   **All**: The complete list (recommended for finding the absolute best).
+
+### 3️⃣ Step 3: Select Test Mode
+*   **🚀 Quick Test (1 run)**: Instant snapshot of current performance.
+*   **📈 Stability Test (10 runs)**: Performs 10 sequential lookups to calculate a reliable average and detect packet loss. *Highly recommended for final selection.*
+
+> **Note:** In Stability Mode, servers with >2 failures are automatically marked as "Unstable" and excluded from recommendations.
+
+---
+
+## 🖥️ Example Output
 
 ```text
-                     ya.ru       mail.ru     vk.com      ozon.ru     gosuslugi.  Average     
-127.0.0.53           1 ms        1 ms        1 ms        1 ms        1 ms          1.00
-cloudflare           28 ms       24 ms       22 ms       33 ms       23 ms         26.00
-google               19 ms       20 ms       19 ms       19 ms       19 ms         19.20
-yandex               8 ms        5 ms        5 ms        9 ms        9 ms          7.20
-adguard              DOWN        DOWN        DOWN        DOWN        DOWN          1000
+Step 1: Select Region -> 1 (RU)
+Step 2: Select DNS Providers -> 1 (RU)
+Step 3: Select Test Mode -> 2 (Stability)
+
+Starting 10-run stability test...
+
+--- Run #1 / 10 ---
+                     ya.ru       vk.com      gosuslugi.  Average     
+127.0.0.53           1 ms        1 ms        1 ms          1.00
+yandex               8 ms        9 ms        9 ms          8.66
+comss.one            15 ms       16 ms       15 ms         15.33
+mts                  25 ms       24 ms       26 ms         25.00
+...
 
 ========================================
- Best 2 DNS
+ Best 6 DNS
+ (Based on 10 runs average, excluding unstable)
 ========================================
-  nextdns (45.90.28.202) - 4.40 ms
-  yandex (77.88.8.7) - 7.20 ms
+  yandex (77.88.8.8) - 8.20 ms
+  comss.one (83.220.169.155) - 15.10 ms
+  google (8.8.8.8) - 19.50 ms
+  cloudflare (1.1.1.1) - 20.10 ms
+  quad9 (9.9.9.9) - 22.00 ms
+  adguard (94.140.14.14) - 25.40 ms
 ```
 
-## How it works
+---
 
-The script queries a comprehensive list of public DNS resolvers (Google, Cloudflare, Yandex, Quad9, AdGuard, Comss, etc.) across multiple regions (Global, RU, EU) as well as your local system resolvers. It measures the time to resolve specific domains.
+## ⚙️ How It Works
 
-### Optimization Details
-- **Timeout**: 1 second per try.
-- **Retries**: 2 tries.
-- **Dead Server Check**: If a server fails a quick connectivity check, it is skipped immediately to save time.
+1.  **Connectivity Check**: Before running full tests, the script sends a quick probe to each DNS server. If it's unreachable, it is marked as `DOWN` immediately to save time.
+2.  **Latency Measurement**: It queries specific domains using `dig`.
+    *   **Timeout**: 1 second.
+    *   **Retries**: 2 attempts.
+3.  **Aggregation**:
+    *   In **Quick Mode**, it reports the immediate result.
+    *   In **Stability Mode**, it aggregates results from 10 runs, filters out unstable providers (packet loss), and calculates the mean latency.
 
-## Credits
+---
 
-This project is a fork of [cleanbrowsing/dnsperftest](https://github.com/cleanbrowsing/dnsperftest), enhanced with:
-- Russian domain support
-- Stability testing (multiple runs)
-- Improved unstable server filtering
-- More DNS providers (Yandex, Comss, etc.)
+## 📜 License
+This project is licensed under **GPLv3**.
 
-## License
-GPLv3
+### Credits
+Forked and enhanced from [cleanbrowsing/dnsperftest](https://github.com/cleanbrowsing/dnsperftest).
