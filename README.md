@@ -47,7 +47,6 @@ curl -sO https://raw.githubusercontent.com/mazixs/dnsperftest-ru/v2.0.0/dnstest.
 | DNS tools  | `dnsutils` / `bind-tools` / `bind-dig` |
 | Awk        | *pre-installed* |
 
-<details>
 <summary><b>Installation by distro</b></summary>
 
 | Distro | Command |
@@ -57,7 +56,6 @@ curl -sO https://raw.githubusercontent.com/mazixs/dnsperftest-ru/v2.0.0/dnstest.
 | Fedora / RHEL | `sudo dnf install bind-utils` |
 | Entware (Keenetic, etc.) | `opkg install bash bind-dig wget-ssl ca-bundle` |
 
-</details>
 
 ---
 
