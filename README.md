@@ -70,7 +70,7 @@ sudo pacman -S bind-tools
 sudo dnf install bind-utils
 ```
 
-#### Entware (Routers / NAS)
+#### Entware (Routers / NAS) - Keenetic supported
 ```bash
 opkg update
 opkg install bash bind-dig wget-ssl ca-bundle
