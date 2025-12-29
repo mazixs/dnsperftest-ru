@@ -70,6 +70,15 @@ sudo pacman -S bind-tools
 sudo dnf install bind-utils
 ```
 
+#### Entware (Routers / NAS)
+```bash
+opkg update
+opkg install bash bind-dig wget-ssl ca-bundle
+wget https://raw.githubusercontent.com/mazixs/dnsperftest-ru/v2.0.0/dnstest.sh
+chmod +x dnstest.sh
+bash ./dnstest.sh
+```
+
 ---
 
 ## 🎮 Interactive Menu
