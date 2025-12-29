@@ -33,10 +33,10 @@ Interactive Bash script for testing DNS server performance. Measures latency acr
 
 ```bash
 # wget
-wget -qO dnstest.sh https://raw.githubusercontent.com/mazixs/dnsperftest-ru/v2.0.0/dnstest.sh && chmod +x dnstest.sh && ./dnstest.sh
+wget -qO dnstest.sh https://raw.githubusercontent.com/mazixs/dnsperftest-ru/v2.0.1/dnstest.sh && chmod +x dnstest.sh && ./dnstest.sh
 
 # curl
-curl -sO https://raw.githubusercontent.com/mazixs/dnsperftest-ru/v2.0.0/dnstest.sh && chmod +x dnstest.sh && ./dnstest.sh
+curl -sO https://raw.githubusercontent.com/mazixs/dnsperftest-ru/v2.0.1/dnstest.sh && chmod +x dnstest.sh && ./dnstest.sh
 ```
 
 ### Requirements
