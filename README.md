@@ -55,7 +55,18 @@ curl -sO https://raw.githubusercontent.com/mazixs/dnsperftest-ru/v2.0.1/dnstest.
 | Arch Linux | `sudo pacman -S bind-tools` |
 | Fedora / RHEL | `sudo dnf install bind-utils` |
 | Entware (Keenetic, etc.) | `opkg install bash bind-dig wget-ssl ca-bundle` |
+| **Docker** | `docker run --rm -it mazixs/dnsperftest-ru` |
 
+### Docker
+
+```bash
+# Build locally
+docker build -t dnsperftest .
+docker run --rm -it dnsperftest
+
+# Or use one-liner
+docker run --rm -it $(docker build -q .)
+```
 
 ---
 

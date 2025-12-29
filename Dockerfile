@@ -1,7 +1,13 @@
 FROM alpine:latest
-RUN apk --no-cache add bash bc drill \
+
+LABEL maintainer="mazixs" \
+      description="DNS Performance & Stability Test (RU/Global)" \
+      version="2.0.1"
+
+RUN apk --no-cache add bash bind-tools \
     && mkdir /app \
-    && wget https://raw.githubusercontent.com/cleanbrowsing/dnsperftest/master/dnstest.sh -O /app/dnstest.sh \
+    && wget -q https://raw.githubusercontent.com/mazixs/dnsperftest-ru/v2.0.1/dnstest.sh -O /app/dnstest.sh \
     && chmod +x /app/dnstest.sh
 
-ENTRYPOINT ["/app/dnstest.sh"]
+WORKDIR /app
+ENTRYPOINT ["bash", "/app/dnstest.sh"]
