@@ -65,13 +65,34 @@ chmod +x dnstest.sh
 ./dnstest.sh
 ```
 
-One-liner download:
+Stable one-liner from the latest GitHub release:
+
+```bash
+curl -fsSLo dnstest.sh https://github.com/mazixs/dnsperftest-ru/releases/latest/download/dnstest.sh
+chmod +x dnstest.sh
+./dnstest.sh
+```
+
+Latest `master` one-liner:
 
 ```bash
 curl -fsSLo dnstest.sh https://raw.githubusercontent.com/mazixs/dnsperftest-ru/master/dnstest.sh
 chmod +x dnstest.sh
 ./dnstest.sh
 ```
+
+If you want a specific stable version, replace `latest` with a tag:
+
+```bash
+curl -fsSLo dnstest.sh https://github.com/mazixs/dnsperftest-ru/releases/download/v3.0.0/dnstest.sh
+chmod +x dnstest.sh
+./dnstest.sh
+```
+
+Recommended usage:
+
+- `releases/latest/download/dnstest.sh` for servers, routers, and production-like installs
+- `raw.githubusercontent.com/.../master/dnstest.sh` if you explicitly want the newest unreleased changes
 
 ## CLI Usage
 
