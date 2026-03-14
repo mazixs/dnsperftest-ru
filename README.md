@@ -134,6 +134,7 @@ During execution the script prints one line per target:
 The final report contains:
 
 - `Top 3` public recommendations for every selected mode
+- Concrete setup values for each recommendation (`DNS` IP, `DoH` URL, `DoT` host/IP)
 - `median`, `p90`, `avg`, and `success rate`
 - A short reason per recommended entry
 - A system resolver reference block

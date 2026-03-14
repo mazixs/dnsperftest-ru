@@ -318,6 +318,60 @@ style_text() {
   fi
 }
 
+metric_label() {
+  local text=$1
+  if [ "$USE_COLOR" = true ]; then
+    printf '%b%s%b' "$CYAN" "$text" "$NC"
+  else
+    printf '%s' "$text"
+  fi
+}
+
+muted_text() {
+  local text=$1
+  if [ "$USE_COLOR" = true ]; then
+    printf '%b%s%b' "$BLUE" "$text" "$NC"
+  else
+    printf '%s' "$text"
+  fi
+}
+
+emphasis_text() {
+  local text=$1
+  if [ "$USE_COLOR" = true ]; then
+    printf '%b%s%b' "$BOLD" "$text" "$NC"
+  else
+    printf '%s' "$text"
+  fi
+}
+
+rank_badge() {
+  local rank=$1
+  local label="#${rank}"
+  local color=$BOLD
+
+  case "$rank" in
+    1) color=$GREEN ;;
+    2) color=$YELLOW ;;
+    3) color=$CYAN ;;
+  esac
+
+  style_text "$color" "[$label]"
+}
+
+section_heading() {
+  local title=$1
+  local color=$MAGENTA
+
+  if [ "$title" = "$(txt system_reference)" ]; then
+    color=$BLUE
+  elif [ "$title" = "$(txt quarantined_targets)" ]; then
+    color=$RED
+  fi
+
+  printf '%s\n' "$(style_text "$color" "$title")"
+}
+
 status_tag() {
   local status=$1
   local color=$NC
@@ -1381,6 +1435,38 @@ render_recommendation_reason() {
   fi
 }
 
+render_target_setup() {
+  local key=$1
+  local mode=${TARGET_MODE[$key]}
+  local family=${TARGET_FAMILY[$key]}
+  local connect_ip=${TARGET_CONNECT_IP[$key]}
+  local url=${TARGET_URL[$key]}
+  local host=${TARGET_HOST[$key]}
+
+  case "$mode" in
+    dns4|dns6)
+      printf 'DNS: %s\n' "$connect_ip"
+      ;;
+    doh)
+      if [ -n "$connect_ip" ]; then
+        printf 'DoH: %s | connect %s (%s)\n' "$url" "$connect_ip" "$family"
+      else
+        printf 'DoH: %s\n' "$url"
+      fi
+      ;;
+    dot)
+      if [ -n "$connect_ip" ]; then
+        printf 'DoT: %s | connect %s (%s)\n' "$host" "$connect_ip" "$family"
+      else
+        printf 'DoT: %s\n' "$host"
+      fi
+      ;;
+    *)
+      printf '%s\n' "$connect_ip"
+      ;;
+  esac
+}
+
 render_mode_top() {
   local mode=$1
   local threshold_x10=1000
@@ -1394,6 +1480,7 @@ render_mode_top() {
   local total
   local success_rate_x10
   local line
+  local setup
   local rank=0
 
   if [ "$PROFILE" = "stability" ]; then
@@ -1415,7 +1502,7 @@ render_mode_top() {
   done
 
   printf '\n'
-  printf '%s\n' "$(style_text "$BOLD" "$(mode_label "$mode") Top ${TOP_N}")"
+  section_heading "$(mode_label "$mode") Top ${TOP_N}"
 
   if [ "${#records[@]}" -eq 0 ]; then
     printf '  %s\n' "$(txt no_stable_candidates)"
@@ -1432,21 +1519,35 @@ render_mode_top() {
     stats=$(compute_stats "$key")
     IFS='|' read -r median avg p90 success total success_rate_x10 <<<"$stats"
     line=$(render_recommendation_reason "$mode" "$rank" "$median" "$p90" "$success_rate_x10")
+    setup=$(render_target_setup "$key")
 
-    printf '  %d. %s - median %sms, p90 %sms, avg %sms, success %s, reason: %s' \
-      "$rank" \
-      "${TARGET_NAME[$key]}" \
+    printf '  %s %s\n' \
+      "$(rank_badge "$rank")" \
+      "$(emphasis_text "${TARGET_NAME[$key]}")"
+
+    printf '     %s %sms   %s %sms   %s %sms   %s %s\n' \
+      "$(metric_label "median")" \
       "$median" \
+      "$(metric_label "p90")" \
       "$p90" \
+      "$(metric_label "avg")" \
       "$avg" \
-      "$(format_percent_x10 "$success_rate_x10")" \
-      "$line"
+      "$(metric_label "success")" \
+      "$(format_percent_x10 "$success_rate_x10")"
 
     if [ "${TARGET_MODE[$key]}" = "doh" ] || [ "${TARGET_MODE[$key]}" = "dot" ]; then
-      printf ' (%s)' "${TARGET_FAMILY[$key]}"
+      printf '     %s %s   %s %s\n' \
+        "$(metric_label "family")" \
+        "${TARGET_FAMILY[$key]}" \
+        "$(metric_label "reason")" \
+        "$line"
+    else
+      printf '     %s %s\n' \
+        "$(metric_label "reason")" \
+        "$line"
     fi
 
-    printf '\n'
+    printf '     %s %s\n' "$(metric_label "setup")" "$(emphasis_text "$setup")"
   done < <(printf '%s\n' "${records[@]}" | sort)
 }
 
@@ -1462,7 +1563,7 @@ render_system_reference() {
   local success_rate_x10
 
   printf '\n'
-  printf '%s\n' "$(style_text "$BOLD" "$(txt system_reference)")"
+  section_heading "$(txt system_reference)"
 
   for key in "${TARGET_KEYS[@]}"; do
     [ "${TARGET_PUBLIC[$key]}" = "no" ] || continue
@@ -1477,12 +1578,16 @@ render_system_reference() {
     IFS='|' read -r median avg p90 success total success_rate_x10 <<<"$stats"
 
     if [ "$success" -gt 0 ]; then
-      printf '  %s %-26s median %sms, p90 %sms, avg %sms, success %s\n' \
+      printf '  %s %-26s %s %sms, %s %sms, %s %sms, %s %s\n' \
         "$(status_tag "INFO")" \
         "${TARGET_NAME[$key]} ($(mode_label "${TARGET_MODE[$key]}"))" \
+        "$(metric_label "median")" \
         "$median" \
+        "$(metric_label "p90")" \
         "$p90" \
+        "$(metric_label "avg")" \
         "$avg" \
+        "$(metric_label "success")" \
         "$(format_percent_x10 "$success_rate_x10")"
     else
       printf '  %s %-26s no successful responses\n' \
@@ -1501,16 +1606,16 @@ render_quarantine_summary() {
   local key
 
   printf '\n'
-  printf '%s\n' "$(style_text "$BOLD" "$(txt quarantined_targets)")"
+  section_heading "$(txt quarantined_targets)"
 
   for key in "${TARGET_KEYS[@]}"; do
     [ "${RESULT_QUARANTINED[$key]:-0}" -eq 1 ] || continue
     printed=1
     printf '  %s %-24s %-7s %s\n' \
       "$(status_tag "QUAR")" \
-      "${TARGET_NAME[$key]}" \
-      "$(mode_transport_label "$key")" \
-      "${RESULT_QUARANTINE_REASON[$key]}"
+      "$(emphasis_text "${TARGET_NAME[$key]}")" \
+      "$(muted_text "$(mode_transport_label "$key")")" \
+      "$(muted_text "${RESULT_QUARANTINE_REASON[$key]}")"
   done
 
   if [ "$printed" -eq 0 ]; then
